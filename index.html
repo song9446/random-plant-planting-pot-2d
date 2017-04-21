@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JS Bin</title>
+</head>
+<body>
+<canvas id='screen' width="1024" height="800" style="positino:absolute;left:0;top:0;"> upgrade browser plz.. </canvas>
+<script language="JavaScript" src="plant.js"> </script>
+<script>
+var example_l_system = new LSystem({
+    axiom: "S",
+    constants: "",
+    rules: 
+    [
+        "S=X",
+        "X=B-[[X]+X]+B-L+[+BX]-X",
+        "B=B@"
+    ],
+    iterations: 1,
+});
+
+var example_plant = new Plant(
+    example_l_system, 
+    {seed: {energy: 100, mineral: 10000, water: 10000,},
+     flower: {energy: 1, mineral: 1}, 
+     leaf: {energy: 1, mineral: 1}, 
+     branch: {energy: 1}},
+    30
+);
+
+example_plant.feed({water:300});
+
+var ctx = document.getElementById("screen").getContext("2d");
+var lastLoop = new Date();
+var framelate = 0;
+setInterval(function () {
+    var thisLoop = new Date;
+    framelate = 0.8*framelate + 0.2*(thisLoop - lastLoop);
+    lastLoop = thisLoop;
+    example_plant.grow(10);
+}, 100);
+var lastLoop2 = new Date();
+var framelate2 = 0;
+setInterval(function () {
+    var thisLoop = new Date;
+    framelate2 = 0.8*framelate2 + 0.2*(thisLoop - lastLoop2);
+    lastLoop2 = thisLoop;
+    ctx.clearRect(0, 0, 1000, 1000);
+    example_plant.draw(ctx, 0, 0);
+    ctx.fillText("calc: "+framelate+"ms", 0, 20);
+    ctx.fillText("draw: "+framelate2+"ms", 0, 40);
+}, 1000/30);
+</script>
+</body>
+</html>

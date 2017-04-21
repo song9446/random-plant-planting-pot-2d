@@ -1,8 +1,8 @@
-# Random Plant Planting Pot
+# Random Plant Planting Pot 2D
 
 ## 1. Description
 
-Planting a random plant in a pot in browser using javascript and html5 canvas.  
+Planting a random plant in a pot in browser using javascript and html5 canvas in 2d.
 
 ### [Demo version here](http://52.78.81.68:8080)
 
@@ -16,17 +16,17 @@ Browser which support html5 canvas and javascript.
 
 ## 4. Developement
 
-### Developed :  
+* Developed :  
 
-* L-system based plant definition.
-* L-system based plant growing gradiantly.
-* Simple plant drawing on HTML5 canvas(just plant) 
-* Simple Limiting plant growing by it's resource(water, mineral, sunshine, energy).
-* Mundane photosynthesis(proportion to sunshine resource and number of leafs)
+    + L-system based plant definition.
+    + L-system based plant growing gradiantly.
+    + Simple plant drawing on HTML5 canvas(just plant) 
+    + Simple Limiting plant growing by it's resource(water, mineral, sunshine, energy).
+    + Mundane photosynthesis(proportion to sunshine resource and number of leafs)
 
-### Todo : 
+* Todo : 
 
-* Rendering the plant as rigid body rather drawing.
-* Realtime evironment(weather, time) represetation by projection the real world.
-* Draw flowerpot and background depend environment(weather, time).
-* Draw everything beautifully.
+    + Rendering the plant as rigid body rather drawing.
+    + Realtime evironment(weather, time) represetation by projection the real world.
+    + Draw flowerpot and background depend environment(weather, time).
+    + Draw everything beautifully.

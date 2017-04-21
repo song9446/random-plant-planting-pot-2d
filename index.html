@@ -22,7 +22,7 @@ var example_l_system = new LSystem({
 
 var example_plant = new Plant(
     example_l_system, 
-    {seed: {energy: 100, mineral: 10000, water: 10000,},
+    {seed: {energy: 1000, mineral: 10000, water: 10000,},
      flower: {energy: 1, mineral: 1}, 
      leaf: {energy: 1, mineral: 1}, 
      branch: {energy: 1}},
@@ -38,19 +38,11 @@ setInterval(function () {
     var thisLoop = new Date;
     framelate = 0.8*framelate + 0.2*(thisLoop - lastLoop);
     lastLoop = thisLoop;
-    example_plant.grow(10);
-}, 100);
-var lastLoop2 = new Date();
-var framelate2 = 0;
-setInterval(function () {
-    var thisLoop = new Date;
-    framelate2 = 0.8*framelate2 + 0.2*(thisLoop - lastLoop2);
-    lastLoop2 = thisLoop;
+    example_plant.grow(1);
     ctx.clearRect(0, 0, 1000, 1000);
     example_plant.draw(ctx, 0, 0);
-    ctx.fillText("calc: "+framelate+"ms", 0, 20);
-    ctx.fillText("draw: "+framelate2+"ms", 0, 40);
-}, 1000/30);
+    ctx.fillText("framerate: "+framelate+"ms", 0, 20);
+}, 100);
 </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 
 Planting a random plant in a pot in browser using javascript and html5 canvas in 2d.
 
-### [Demo version here](http://52.78.81.68:8080)
+### [Demo version here](http://song9446.github.io/random-plant-planting-pot-2d/)
 
 ## 2. Screenshots
 

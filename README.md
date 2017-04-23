@@ -8,7 +8,7 @@ Planting a random plant in a pot in browser using javascript and html5 canvas in
 
 ## 2. Screenshots
 
-[Example tree](/Screenshots/example_tree.png?raw=true)
+![Example tree](/Screenshots/example_tree.png?raw=true)
 
 ## 3. Dependency
 

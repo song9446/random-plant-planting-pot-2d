@@ -14,15 +14,20 @@ var example_l_system = new LSystem({
     rules: 
     [
         "S=X",
-        "X=B-[[X]+X]+B-L+[+BX]-X",
-        "B=B@"
+        "X=B-[[X]+X]+B-L[-BL-Q+Q++Q]+[+BX-Q+Q++Q]-@-Q+Q++Q",
+        "Q=W",
+        "W=E",
+        "E=R",
+        "R=F",
+        "T=F",
+        "B=@B"
     ],
     iterations: 1,
 });
 
 var example_plant = new Plant(
     example_l_system, 
-    {seed: {energy: 1000, mineral: 10000, water: 10000,},
+    {seed: {energy: 10000, mineral: 10000, water: 10000,},
      flower: {energy: 1, mineral: 1}, 
      leaf: {energy: 1, mineral: 1}, 
      branch: {energy: 1}},
@@ -32,17 +37,22 @@ var example_plant = new Plant(
 example_plant.feed({water:300});
 
 var ctx = document.getElementById("screen").getContext("2d");
+var flower_pot_image = new Image();
+flower_pot_image.src = "flower_pot.png";
 var lastLoop = new Date();
 var framelate = 0;
-setInterval(function () {
-    var thisLoop = new Date;
-    framelate = 0.8*framelate + 0.2*(thisLoop - lastLoop);
-    lastLoop = thisLoop;
-    example_plant.grow(1);
-    ctx.clearRect(0, 0, 1000, 1000);
-    example_plant.draw(ctx, 0, 0);
-    ctx.fillText("framerate: "+framelate+"ms", 0, 20);
-}, 100);
+flower_pot_image.onload = function () {
+    setInterval(function () {
+        var thisLoop = new Date;
+        framelate = 0.8*framelate + 0.2*(thisLoop - lastLoop);
+        lastLoop = thisLoop;
+        example_plant.grow(0.1);
+        ctx.clearRect(0, 0, 1000, 1000);
+        ctx.drawImage(flower_pot_image, 200, 572, 200, 200);
+        example_plant.draw(ctx, 0, 0, 600, 600);
+        ctx.fillText("framerate: "+framelate+"ms", 0, 20);
+    }, 200);
+};
 </script>
 </body>
 </html>

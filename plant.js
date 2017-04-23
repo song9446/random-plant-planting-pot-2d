@@ -40,11 +40,14 @@ var LSystem = function (lsystem){ // properties : axoim, constants, rules, itera
 LSystem.prototype.iterate = function () {
     var original = this.result;
     var growth_mask = this.result;
+    var removed_mask = this.result;
     for(var i=0, l=this.parsed_rules.length; i<l; i++){
         var rule = this.parsed_rules[i];
-        if(rule.prob >= Math.random())
+        if(rule.prob >= Math.random()){
             original = original.replace(rule.regex_from, ""+i);
             growth_mask = growth_mask.replace(rule.regex_from, ""+i);
+            if(rule.to.search("@")<0) removed_mask.replace(rule.regex_from, " ".repeat(rule.from.length));
+        }
     }
     for(var i=0, l=this.parsed_rules.length; i<l; i++){
         var rule = this.parsed_rules[i];
@@ -104,14 +107,14 @@ Plant.prototype.grow = function(day) {
     this.resource.energy += day * this.leaf_area * this.resource.sunshine;
 
     // grow(consume energy)
-    while(day > 0){
+    while(day > 0.0001){
         var last_stage = this.stage,
             remain_organize_day = Math.floor(last_stage+1)-last_stage,
             spend_day = Math.min(day, remain_organize_day, this.l_system.result.length - last_stage);
         // check if already drown
         // calcualte will spend day
-        var current_organize = Plant.ORGANIZE_LETTER[this.l_system.growth_mask[Math.floor(last_stage)]];
-        if(current_organize != null){
+        var current_organize = Plant.ORGANIZE_LETTER[this.l_system.result[Math.floor(last_stage)]];
+        if(this.l_system.growth_mask[Math.floor(last_stage)] === " " && current_organize != null){
             // calculate will be consume
             var current_organize_resource = this.organize_resource[current_organize];
             assert(current_organize_resource != null, "no organize resource definition : " + current_organize);
@@ -159,7 +162,7 @@ Plant.drawLeaf = function(context, draw_state) {
     context.save();
     context.beginPath();
     context.strokeStyle = "#8FBC8F";
-    context.lineWidth=draw_state.width;
+    context.lineWidth=draw_state.width*3;
     context.moveTo(draw_state.x, draw_state.y);
     var x = draw_state.x + Math.cos(Math.PI * draw_state.angle/180)*draw_state.length,
         y = draw_state.y + Math.sin(Math.PI * draw_state.angle/180)*draw_state.length;
@@ -173,15 +176,15 @@ Plant.drawFlower = function(context, draw_state) {
     context.beginPath();
     context.fillStyle = "#CD5C5C";
     context.strokeStyle = "#CD5C5C";
-    context.lineWidth=draw_state.width;
+    context.lineWidth=draw_state.width*4;
     /*
     var x = draw_state.x + Math.cos(Math.PI * draw_state.angle/180)*draw_state.length*0.5,
         y = draw_state.y + Math.sin(Math.PI * draw_state.angle/180)*draw_state.length*0.5;
     context.arc(x, y, draw_state.length*0.5, 0, Math.PI*2, false);
     */
     context.moveTo(draw_state.x, draw_state.y);
-    var x = draw_state.x + Math.cos(Math.PI * draw_state.angle/180)*draw_state.length,
-        y = draw_state.y + Math.sin(Math.PI * draw_state.angle/180)*draw_state.length;
+    var x = draw_state.x + Math.cos(Math.PI * draw_state.angle/180)*draw_state.length*2,
+        y = draw_state.y + Math.sin(Math.PI * draw_state.angle/180)*draw_state.length*2;
     context.lineTo(x, y);
     context.closePath();
     context.stroke();
@@ -211,31 +214,50 @@ Plant.prototype.initStage = function() {
 Plant.prototype.draw = function(context, x, y, w, h) {
     if(this.bufferCanvas == null){
         this.bufferCanvas = document.createElement("canvas");
-        this.bufferCanvas.width = 500;
-        this.bufferCanvas.height = 500;
+        this.bufferCanvas.width = 600;
+        this.bufferCanvas.height = 600;
         this.buffer = this.buffer || this.bufferCanvas.getContext("2d");
     }
     var draw_state = {
             angle: -90,
             width: Math.max(1, Math.log10(this.l_system.result.length)),
-            length: 4,
+            length: 3,
             x: this.bufferCanvas.width*0.5,
             y: this.bufferCanvas.height,
         },
         draw_state_stack = [],
         buffer = this.buffer;
-    buffer.clearRect(0, 0, 1000, 1000);
+    buffer.clearRect(0, 0, this.bufferCanvas.width, this.bufferCanvas.height);
     for(var i=0, l=this.growth_mask_array.length; i<l; i++){
-        var current_organize = this.growth_mask_array[i];
+        var current_organize = this.l_system.result[i];
+        if(i === Math.floor(this.stage)) {
+            var length =draw_state.length;
+            draw_state.length *= this.stage - Math.floor(this.stage);
+            switch(current_organize){
+            case "B":
+                Plant.drawBranch(buffer, draw_state);
+                break;
+            case "L":
+                Plant.drawLeaf(buffer, draw_state);
+                break;
+            case "F":
+                Plant.drawFlower(buffer, draw_state);
+                break;
+            }
+            draw_state.length = length;
+        }
         switch(current_organize){
         case "B":
+            if(this.growth_mask_array[i] === " ")break;
             Plant.drawBranch(buffer, draw_state);
-            draw_state.width = Math.max(1, draw_state.width - 0.1);
+            draw_state.width = Math.max(1, draw_state.width - 0.04);
             break;
         case "L":
+            if(this.growth_mask_array[i] === " ")break;
             Plant.drawLeaf(buffer, draw_state);
             break;
         case "F":
+            if(this.growth_mask_array[i] === " ")break;
             Plant.drawFlower(buffer, draw_state);
             break;
         case "-":
@@ -255,29 +277,81 @@ Plant.prototype.draw = function(context, x, y, w, h) {
             break;
         }
     }
-    /*
-    if(this.stage > i){
-        var length = draw_state.length;
-        draw_state.length *= Math.max(this.stage - i, 0);
-        var current_organize = this.l_system.result[i];
-        switch(current_organize){
-        case "B":
-            Plant.drawBranch(buffer, draw_state, true);
-            break;
-        case "L":
-            Plant.drawLeaf(buffer, draw_state);
-            break;
-        case "F":
-            Plant.drawFlower(buffer, draw_state);
-            break;
-        }
-        draw_state.length = length;
-    }
-    */
     if(w && h)
         context.drawImage(this.bufferCanvas, x, y, w, h); 
     else
         context.drawImage(this.bufferCanvas, x, y); 
 };
 
+Plant.createRenderNode = function(type, angle, prev_node, x, y, width) {
+    // create consraints
+    var length = 2;
+    this.group = this.group || Matter.Body.nextGroup(true);
+    this.composite = this.composite || Matter.Composite.create();
+    var x = x || prev_node.x + Math.cos(prev_node.angle*Math.PI/180)*prev_node.length,
+        y = y || prev_node.y + Math.sin(prev_node.angle*Math.PI/180)*prev_node.length,
+        width = Math.min(width || prev_node.width-0.1, 1);
+    var body = Matter.Bodies.rectangle(x + Math.cos(angle*Math.PI/180)*length*0.5, y + Math.sin(angle*Math.PI/180)*length*0.5, 
+                                        length+width, width,{ collisionFilter: { group: this.group } } ); 
+    Matter.body.setAngle(body, angle*Math.PI/180);
+    var constraints = [
+        Matter.Constraint.create({
+            bodyA: body, 
+            pointA: {x: -width*0.5, y:0},
+            bodyB: prev.body,
+            pointB: {x: width*0.5, y:0},
+            shiffness: 1.0,
+        }),
+        Matter.Constraint.create({
+            bodyA: prev.body, 
+            pointA: {x: width*0.5, y: 0},
+            bodyB: body,
+            pointB: {x: -width*0.5, y:0},
+            shiffness: 1.0,
+        })
+    ];
+    var node = {
+        x: x,
+        y: y,
+        length: length,
+        width: width,
+        body: body,
+        constraints: constraints,
+        angle: angle,
+        prev_node: prev_node,
+        next_nodes: [],
+    };
+    prev_node.next_nodes.push(node);
+    this.composite.add(body, constraints[0], constraints[1]);
+    return node;
+};
+Plant.removeRenderNode = function(node) {
+    for(var i=0, l=node.prev_node.next_nodes.length; i<l; i++)
+        if(node.prev_node.next_nodes[i] === node){
+            node.prev_node.next_nodes.splice(i, 1);
+            node.prev_node.next_nodes.concat(node.next_nodes);
+        }
+    Matter.Composite.remove(this.composite, node.body);
+    Matter.Composite.remove(this.composite, node.constraints[0]);
+    Matter.Composite.remove(this.composite, node.constraints[1]);
+};
+Plant.transRenderNode = function(node, new_prev) {
+    for(var i=0, l=node.prev_node.next_nodes.length; i<l; i++)
+        if(node.prev_node.next_nodes[i] === node){
+            node.prev_node.next_nodes.splice(i, 1);
+        }
+    new_prev.next_nodes.push(node);
+    node.prev_node = new_prev;
+};
 
+Plant.prototype.render = function(element, x, y, w, h) {
+    var draw_state = {
+            angle: -90,
+            width: Math.max(1, Math.log10(this.l_system.result.length)),
+            length: 4,
+            x: this.bufferCanvas.width*0.5,
+            y: this.bufferCanvas.height,
+        },
+        draw_state_stack = [];
+    buffer.clearRect(0, 0, 1000, 1000);
+};

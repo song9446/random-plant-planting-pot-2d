@@ -4,15 +4,15 @@
 
 Planting a random plant in a pot in browser using javascript and html5 canvas in 2d.
 
-### [Demo version here](http://52.78.81.68:8080)
+### [Demo version here](http://song9446.github.io/random-plant-planting-pot-2d)
 
 ## 2. Screenshots
 
+[Example Tree](/Screenshots/example_tree.png?raw=true)
 
 ## 3. Dependency
 
 Browser which support html5 canvas and javascript.
-
 
 ## 4. Developement
 
@@ -26,6 +26,7 @@ Browser which support html5 canvas and javascript.
 
 * Todo : 
 
+    + Randomly appropriate plant generating.
     + Rendering the plant as rigid body rather drawing.
     + Realtime evironment(weather, time) represetation by projection the real world.
     + Draw flowerpot and background depend environment(weather, time).
